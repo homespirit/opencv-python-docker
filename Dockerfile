@@ -30,7 +30,7 @@ RUN cd ~/opencv-$opencvVersion && \
         -D INSTALL_PYTHON_EXAMPLES=ON \
         -D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib-$opencvVersion/modules \
         -D BUILD_EXAMPLES=ON .. && \
-    make -j`nproc`
+    make -j8
 
 RUN cd build && \
     make install && \
