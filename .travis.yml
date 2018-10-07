@@ -1,0 +1,35 @@
+sudo: required
+services:
+- docker
+language: bash
+script:
+- |
+  echo "Updating Docker to have docker manifest command"
+  curl https://get.docker.com | sh
+  echo "Enabling docker client experimental features"
+  mkdir -p ~/.docker
+  echo '{ "experimental": "enabled" }' > ~/.docker/config.json
+  docker version
+# prepare qemu
+- docker run --rm --privileged multiarch/qemu-user-static:register --reset
+# build image
+- docker build -t opencv-python .
+# test image
+- docker run opencv-python python3 --version
+# push image
+- >
+  if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+    IMAGE=homespirit/rpi-opencv-python
+    IMAGE_ARM=$IMAGE:arm-$TAG
+    IMAGE_GENERIC=$IMAGE:$TAG
+    docker login -u="$DOCKER_USER" -p="$DOCKER_PASS"
+    TAG=$(grep "ENV MYSQL_VERSION" Dockerfile | awk 'NF>1{print $NF}')
+    docker tag opencv-python $IMAGE_ARM
+    docker push $IMAGE_ARM
+    docker manifest create $IMAGE_GENERIC $IMAGE_ARM
+    docker manifest annotate $IMAGE_GENERIC $IMAGE_ARM --os linux --arch arm --variant v6
+    docker manifest push $IMAGE_GENERIC
+    docker manifest create $IMAGE $IMAGE_ARM
+    docker manifest annotate $IMAGE $IMAGE_ARM --os linux --arch arm --variant v6
+    docker manifest push $IMAGE
+  fi
