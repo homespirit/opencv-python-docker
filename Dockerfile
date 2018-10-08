@@ -32,6 +32,6 @@ RUN cd ~/opencv-$opencvVersion && \
         -D BUILD_EXAMPLES=ON .. && \
     make -j64
 
-RUN cd build && \
+RUN cd ~/opencv-$opencvVersion/build && \
     make install && \
     loadconfig
