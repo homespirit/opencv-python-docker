@@ -1,6 +1,7 @@
 FROM resin/rpi-raspbian:stretch
 
 ARG opencvVersion=3.3.0
+ARG numOfCores=4
 
 RUN apt-get update && apt-get install -y \
     build-essential cmake pkg-config \
@@ -30,7 +31,7 @@ RUN cd ~/opencv-$opencvVersion && \
         -D INSTALL_PYTHON_EXAMPLES=ON \
         -D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib-$opencvVersion/modules \
         -D BUILD_EXAMPLES=ON .. && \
-    make -j64
+    make -j$numOfCores
 
 RUN cd ~/opencv-$opencvVersion/build && \
     make install && \
